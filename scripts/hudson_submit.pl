@@ -36,7 +36,7 @@ my $MAX_RUNS = 1;
 # - "mobile" the current releases of mobile browsers
 # - "popularbeta" the most popular browser and their upcoming releases
 # - "popularbetamobile" the most popular browser and their upcoming releases and mobile browsers
-my $BROWSERS = "popular";
+my $BROWSERS = ($browsers)? $browsers : "popular";
 
 # All the suites that you wish to run within this job
 # (can be any number of suites)
@@ -83,11 +83,8 @@ unless ($numRows = 1){
 }
 my @result = $sth->fetchrow_array();
 my $AUTH_TOKEN = $result[0];
-
-#print $AUTH_TOKEN;
-
 my $SWARM = "http://" . $HOST . ":" . $PORT . "/";
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 my %props = (
 "output" => "dump",
@@ -116,10 +113,15 @@ my $results = `curl -d "$queryString" $SWARM`;
 print "Results: $results\n" if ( $DEBUG );
 
 if ( $results ) {
+	print $results;
+	open(RESULTS, ">>testswarm.txt");
+	print RESULTS $results . "\n";
+	close RESULTS;
 	#$done{ $rev } = 1;
 
 } else {
 print "Job not submitted properly.\n";
+exit 1;
 }
 
 sub clean {
