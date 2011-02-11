@@ -1,3 +1,3 @@
 <?php
-	$title = "Scores";
+    $title = "Scores";
 ?>

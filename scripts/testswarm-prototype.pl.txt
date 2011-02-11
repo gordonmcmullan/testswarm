@@ -67,7 +67,7 @@ my %SUITES = ();
 # Comment these out if you wish to define a custom set of SUITES above
 my $SUITE = "http://dev.jquery.com/~john/changeset/prototype/{REV}";
 sub BUILD_SUITES {
-	%SUITES = map { /(\w+)_test.html/; $1 => "$SUITE/$_"; } glob($INJECT_FILE);
+    %SUITES = map { /(\w+)_test.html/; $1 => "$SUITE/$_"; } glob($INJECT_FILE);
 }
 
 ########### NO NEED TO CONFIGURE BELOW HERE ############
@@ -81,15 +81,15 @@ chdir( $BASE_DIR );
 
 # Check out a specific revision
 if ( $RCS_TYPE eq "svn" ) {
-	print "svn co $RCS_URL $co_dir\n" if ( $DEBUG );
-	`svn co $RCS_URL $co_dir`;
+    print "svn co $RCS_URL $co_dir\n" if ( $DEBUG );
+    `svn co $RCS_URL $co_dir`;
 } elsif ( $RCS_TYPE eq "git" ) {
-	print "git clone $RCS_URL $co_dir\n" if ( $DEBUG );
-	`git clone $RCS_URL $co_dir`;
+    print "git clone $RCS_URL $co_dir\n" if ( $DEBUG );
+    `git clone $RCS_URL $co_dir`;
 }
 
 if ( ! -e $co_dir ) {
-	die "Problem checking out source.";
+    die "Problem checking out source.";
 }
 
 print "chdir $co_dir\n" if ( $DEBUG );
@@ -99,13 +99,13 @@ my $rev;
 
 # Figure out the revision of the checkout
 if ( $RCS_TYPE eq "svn" ) {
-	print "svn info | grep Revision\n" if ( $DEBUG );
-	$rev = `svn info | grep Revision`;
-	$rev =~ s/Revision: //;
+    print "svn info | grep Revision\n" if ( $DEBUG );
+    $rev = `svn info | grep Revision`;
+    $rev =~ s/Revision: //;
 } elsif ( $RCS_TYPE eq "git" ) {
-	print "git log --abbrev-commit | head -1\n" if ( $DEBUG );
-	$rev = `git log --abbrev-commit | head -1`;
-	$rev =~ s/commit.*?(\w+).*$/$1/;
+    print "git log --abbrev-commit | head -1\n" if ( $DEBUG );
+    $rev = `git log --abbrev-commit | head -1`;
+    $rev =~ s/commit.*?(\w+).*$/$1/;
 }
 
 $rev =~ s/\s*//g;
@@ -113,88 +113,88 @@ $rev =~ s/\s*//g;
 print "Revision: $rev\n" if ( $DEBUG );
 
 if ( ! $rev ) {
-	remove_tmp();
-	die "Revision information not found.";
+    remove_tmp();
+    die "Revision information not found.";
 
 } elsif ( ! -e "../$rev" ) {
-	print "chdir $BASE_DIR\n" if ( $DEBUG );
-	chdir( $BASE_DIR );
+    print "chdir $BASE_DIR\n" if ( $DEBUG );
+    chdir( $BASE_DIR );
 
-	print "rename $co_dir $rev\n" if ( $DEBUG );
-	rename( $co_dir, $rev );
+    print "rename $co_dir $rev\n" if ( $DEBUG );
+    rename( $co_dir, $rev );
 
-	print "chdir $rev\n" if ( $DEBUG );
-	chdir ( $rev );
+    print "chdir $rev\n" if ( $DEBUG );
+    chdir ( $rev );
 
-	if ( $BUILD ) {
-		print "$BUILD\n" if ( $DEBUG );
-		`$BUILD`;
-	}
+    if ( $BUILD ) {
+        print "$BUILD\n" if ( $DEBUG );
+        `$BUILD`;
+    }
 
-	if ( exists &BUILD_SUITES ) {
-		&BUILD_SUITES();
-	}
+    if ( exists &BUILD_SUITES ) {
+        &BUILD_SUITES();
+    }
 
-	foreach my $file ( glob($INJECT_FILE) ) {
-		my $inject_file = `cat $file`;
+    foreach my $file ( glob($INJECT_FILE) ) {
+        my $inject_file = `cat $file`;
 
-		# Inject the TestSwarm injection script into the test suite
-		$inject_file =~ s/<\/head>/<script>document.write("<scr" + "ipt src='$SWARM$SWARM_INJECT?" + (new Date).getTime() + "'><\/scr" + "ipt>");<\/script><\/head>/;
+        # Inject the TestSwarm injection script into the test suite
+        $inject_file =~ s/<\/head>/<script>document.write("<scr" + "ipt src='$SWARM$SWARM_INJECT?" + (new Date).getTime() + "'><\/scr" + "ipt>");<\/script><\/head>/;
 
-		open( F, ">$file" );
-		print F $inject_file;
-		close( F );
-	}
+        open( F, ">$file" );
+        print F $inject_file;
+        close( F );
+    }
 
-	my %props = (
-		"state" => "addjob",
-		"output" => "dump",
-		"user" => $USER,
-		"max" => $MAX_RUNS,
-		"job_name" => $JOB_NAME,
-		"browsers" => $BROWSERS,
-		"auth" => $AUTH_TOKEN
-	);
+    my %props = (
+        "state" => "addjob",
+        "output" => "dump",
+        "user" => $USER,
+        "max" => $MAX_RUNS,
+        "job_name" => $JOB_NAME,
+        "browsers" => $BROWSERS,
+        "auth" => $AUTH_TOKEN
+    );
 
-	my $query = "";
+    my $query = "";
 
-	foreach my $prop ( keys %props ) {
-		$query .= ($query ? "&" : "") . $prop . "=" . clean($props{$prop});
-	}
+    foreach my $prop ( keys %props ) {
+        $query .= ($query ? "&" : "") . $prop . "=" . clean($props{$prop});
+    }
 
-	foreach my $suite ( sort keys %SUITES ) {
-		$query .= "&suites[]=" . clean($suite) .
-		          "&urls[]=" . clean($SUITES{$suite});
-	}
+    foreach my $suite ( sort keys %SUITES ) {
+        $query .= "&suites[]=" . clean($suite) .
+                  "&urls[]=" . clean($SUITES{$suite});
+    }
 
-	print "curl -d \"$query\" $SWARM\n" if ( $DEBUG );
+    print "curl -d \"$query\" $SWARM\n" if ( $DEBUG );
 
-	my $results = `curl -d "$query" $SWARM`;
+    my $results = `curl -d "$query" $SWARM`;
 
-	print "Results: $results\n" if ( $DEBUG );
+    print "Results: $results\n" if ( $DEBUG );
 
-	if ( $results ) {
-		open( F, ">$rev/results.txt" );
-		print F "$SWARM$results";
-		close( F );
+    if ( $results ) {
+        open( F, ">$rev/results.txt" );
+        print F "$SWARM$results";
+        close( F );
 
-	} else {
-		die "Job not submitted properly.";
-	}
+    } else {
+        die "Job not submitted properly.";
+    }
 
 # Otherwise, give up and clean up
 } else {
-	remove_tmp();
+    remove_tmp();
 }
 
 sub remove_tmp {
-	chdir( $BASE_DIR );
-	`rm -rf $co_dir`;
+    chdir( $BASE_DIR );
+    `rm -rf $co_dir`;
 }
 
 sub clean {
   my $str = shift;
-	$str =~ s/{REV}/$rev/g;
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$str;
+    $str =~ s/{REV}/$rev/g;
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $str;
 }
