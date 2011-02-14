@@ -52,7 +52,7 @@ my %SUITES = ();
 # Comment these out if you wish to define a custom set of SUITES above
 my $SUITE = "http://jquery-ui.googlecode.com/svn-history/r{REV}/trunk";
 sub BUILD_SUITES {
-	%SUITES = map { /(\w+).html$/; $1 => "$SUITE/$_?$1"; } glob("tests/unit/*/*.html");
+    %SUITES = map { /(\w+).html$/; $1 => "$SUITE/$_?$1"; } glob("tests/unit/*/*.html");
     
     print "suites: $SUITES";
     print %SUITES;
@@ -72,8 +72,8 @@ my $fresh;
 
 # Check out a specific revision
 if ( ! -e $BASE_DIR ) {
-	print "svn co $RCS_URL $co_dir\n" if ( $DEBUG );
-	`svn co $RCS_URL $BASE_DIR`;
+    print "svn co $RCS_URL $co_dir\n" if ( $DEBUG );
+    `svn co $RCS_URL $BASE_DIR`;
     $fresh = 1;
 }
 
@@ -112,52 +112,52 @@ if ( ! $rev ) {
 
 if (true || $fresh || $previous != $rev ) {
 
-	if ( exists &BUILD_SUITES ) {
-		&BUILD_SUITES();
-	}
+    if ( exists &BUILD_SUITES ) {
+        &BUILD_SUITES();
+    }
 
-	my %props = (
-		"state" => "addjob",
-		"output" => "dump",
-		"user" => $USER,
-		"max" => $MAX_RUNS,
-		"job_name" => $JOB_NAME,
-		"browsers" => $BROWSERS,
-		"auth" => $AUTH_TOKEN
-	);
+    my %props = (
+        "state" => "addjob",
+        "output" => "dump",
+        "user" => $USER,
+        "max" => $MAX_RUNS,
+        "job_name" => $JOB_NAME,
+        "browsers" => $BROWSERS,
+        "auth" => $AUTH_TOKEN
+    );
 
-	my $query = "";
+    my $query = "";
 
-	foreach my $prop ( keys %props ) {
-		$query .= ($query ? "&" : "") . $prop . "=" . clean($props{$prop});
-	}
+    foreach my $prop ( keys %props ) {
+        $query .= ($query ? "&" : "") . $prop . "=" . clean($props{$prop});
+    }
 
-	foreach my $suite ( sort keys %SUITES ) {
-		$query .= "&suites[]=" . clean($suite) .
-		          "&urls[]=" . clean($SUITES{$suite});
-	}
+    foreach my $suite ( sort keys %SUITES ) {
+        $query .= "&suites[]=" . clean($suite) .
+                  "&urls[]=" . clean($SUITES{$suite});
+    }
 
-	print "curl -d \"$query\" $SWARM\n" if ( $DEBUG );
+    print "curl -d \"$query\" $SWARM\n" if ( $DEBUG );
 
-	my $results = `curl -d "$query" $SWARM`;
+    my $results = `curl -d "$query" $SWARM`;
 
-	print "Results: $results\n" if ( $DEBUG );
+    print "Results: $results\n" if ( $DEBUG );
 
-	if ( $results ) {
-		open( F, ">$rev/results.txt" );
-		print F "$SWARM$results";
-		close( F );
+    if ( $results ) {
+        open( F, ">$rev/results.txt" );
+        print F "$SWARM$results";
+        close( F );
 
-	} else {
-		die "Job not submitted properly.";
-	}
+    } else {
+        die "Job not submitted properly.";
+    }
 } else {
     print "No new revision." if ( $DEBUG );
 }
 
 sub clean {
   my $str = shift;
-	$str =~ s/{REV}/$rev/g;
-	$str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
-	$str;
+    $str =~ s/{REV}/$rev/g;
+    $str =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+    $str;
 }

@@ -1,25 +1,25 @@
 <?php
-	require "inc/init.php";
+    require "inc/init.php";
 
-	$user = getItem('username', $_REQUEST, getItem('username', $_SESSION, ''));
+    $user = getItem('username', $_REQUEST, getItem('username', $_SESSION, ''));
 
-	if ( !getItem('user', $_REQUEST, false) && $user ) {
-		header("Location: /run/$user/");
-		exit;
-	}
+    if ( !getItem('user', $_REQUEST, false) && $user ) {
+        header("Location: /run/$user/");
+        exit;
+    }
 
-	$result = mysql_queryf("SELECT name FROM clients, useragents WHERE clients.id=%u AND useragents.id=useragent_id LIMIT 1;", $client_id);
+    $result = mysql_queryf("SELECT name FROM clients, useragents WHERE clients.id=%u AND useragents.id=useragent_id LIMIT 1;", $client_id);
 
-	if ( $row = mysql_fetch_array($result) ) {
-		$useragent_name = $row[0];
-	}
+    if ( $row = mysql_fetch_array($result) ) {
+        $useragent_name = $row[0];
+    }
 
-	$title = "Run the Test Swarm";
-	$scripts = "";
+    $title = "Run the Test Swarm";
+    $scripts = "";
 
-	if ( $client_id ) {
-		$scripts = "<script type='text/javascript'>var client_id = $client_id;</script>";
-	}
+    if ( $client_id ) {
+        $scripts = "<script type='text/javascript'>var client_id = $client_id;</script>";
+    }
 
-	$scripts .= '<script type="text/javascript" src="' . $GLOBALS['contextpath'] . '/js/jquery.js"></script>' .
-						  '<script type="text/javascript" src="' . $GLOBALS['contextpath'] . '/js/run.js?' . time() . '"></script>';
+    $scripts .= '<script type="text/javascript" src="' . $GLOBALS['contextpath'] . '/js/jquery.js"></script>' .
+                          '<script type="text/javascript" src="' . $GLOBALS['contextpath'] . '/js/run.js?' . time() . '"></script>';

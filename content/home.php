@@ -14,11 +14,11 @@ $result = mysql_queryf("SELECT users.name, SUM(total) as alltotal FROM clients, 
 $num = 1;
 
 while ( $row = mysql_fetch_array($result) ) {
-	$user = $row[0];
-	$total = $row[1];
+    $user = $row[0];
+    $total = $row[1];
 
-	echo "<tr><td class='num'>$num</td><td><a href='" . $GLOBALS['contextpath'] . "/user/$user/'>$user</a></td><td class='num'>$total</td></tr>";
-	$num++;
+    echo "<tr><td class='num'>$num</td><td><a href='" . $GLOBALS['contextpath'] . "/user/$user/'>$user</a></td><td class='num'>$total</td></tr>";
+    $num++;
 }
 
 echo "</table><p class='right'><a href='" . $GLOBALS['contextpath'] . "/scores/'>All Scores...</a></p><h3>Rarest Browsers</h3><table class='scores'>";
@@ -28,10 +28,10 @@ $result = mysql_queryf("SELECT name, SUM(runs) as allruns FROM run_useragent, us
 $num = 1;
 
 while ( $row = mysql_fetch_array($result) ) {
-	$name = $row[0];
+    $name = $row[0];
 
-	echo "<tr><td class='num'>$num</td><td>$name</td></tr>";
-	$num++;
+    echo "<tr><td class='num'>$num</td><td>$name</td></tr>";
+    $num++;
 }
 
 echo "</table></div>";
@@ -58,15 +58,15 @@ function loadBrowsers($name, $mobile) {
     # <?php echo $row[0] != $engine ? ' clear' : ''?
     $num = preg_replace('/\w+ /', "", $row[1]);
     ?>
-		<div class="browser<?php echo $row[0] != $engine ? ' clear' : '';?><?php echo $row[3] ? ' you' : '';?>">
-			<img src="<?php echo $GLOBALS['contextpath']; ?>/images/<?php echo $row[0]; ?>.sm.png" class="browser-icon <?php echo $row[0]; ?>" alt="<?php echo $row[1]; ?>" title="<?php echo $row[1]; ?>"/>
-			<span class="browser-name"><?php echo $num; ?></span>
-			<?php if ( intval($row[2]) > 0 ) {
-				echo "<span class='active'>", $row[2], "</span>";
-			}?>
-		</div>
+        <div class="browser<?php echo $row[0] != $engine ? ' clear' : '';?><?php echo $row[3] ? ' you' : '';?>">
+            <img src="<?php echo $GLOBALS['contextpath']; ?>/images/<?php echo $row[0]; ?>.sm.png" class="browser-icon <?php echo $row[0]; ?>" alt="<?php echo $row[1]; ?>" title="<?php echo $row[1]; ?>"/>
+            <span class="browser-name"><?php echo $num; ?></span>
+            <?php if ( intval($row[2]) > 0 ) {
+                echo "<span class='active'>", $row[2], "</span>";
+            }?>
+        </div>
   <?php $engine = $row[0];
-	}
+    }
 
   echo "</div>";
 }
@@ -76,10 +76,10 @@ if ( $found ) { ?>
 <p><strong>TestSwarm Needs Your Help!</strong> You have a browser that we need to test against, you should join the swarm to help us out.</p>
 <?php if ( !$_SESSION['username'] ) { ?>
 <form action="" method="get">
-	<input type="hidden" name="state" value="run"/>
-	<br/><strong>Username:</strong><br/>
-	<input type="text" name="user" value=""/>
-	<input type="submit" value="Join the Swarm"/>
+    <input type="hidden" name="state" value="run"/>
+    <br/><strong>Username:</strong><br/>
+    <input type="text" name="user" value=""/>
+    <input type="submit" value="Join the Swarm"/>
 </form>
 <?php } else { ?>
 <br/><p><strong>&raquo; <?php echo $_SESSION['username']; ?></strong> <a href="<?php echo $GLOBALS['contextpath']; ?>/run/<?php echo $_SESSION['username']; ?>/">Start Running Tests</a></p>

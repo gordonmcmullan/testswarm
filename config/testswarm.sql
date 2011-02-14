@@ -126,26 +126,26 @@ CREATE TABLE `users` (
 
 -- Indexes and Foreign Keys
 alter table clients
-	add index idx_clients_user_id (user_id),
-	add constraint fk_clients_user_id foreign key (user_id) references users (id);
+    add index idx_clients_user_id (user_id),
+    add constraint fk_clients_user_id foreign key (user_id) references users (id);
 alter table clients
-	add index idx_clients_useragent_id (useragent_id),
-	add constraint fk_clients_useragent_id foreign key (useragent_id) references useragents (id);
+    add index idx_clients_useragent_id (useragent_id),
+    add constraint fk_clients_useragent_id foreign key (useragent_id) references useragents (id);
 alter table jobs
-	add index idx_jobs_user_id (user_id),
-	add constraint fk_jobs_user_id foreign key (user_id) references users (id);
+    add index idx_jobs_user_id (user_id),
+    add constraint fk_jobs_user_id foreign key (user_id) references users (id);
 alter table run_client
-	add index idx_run_client_run_id (run_id),
-	add constraint fk_run_client_run_id foreign key (run_id) references runs (id);
+    add index idx_run_client_run_id (run_id),
+    add constraint fk_run_client_run_id foreign key (run_id) references runs (id);
 alter table run_client
-	add index idx_run_client_client_id (client_id),
-	add constraint fk_run_client_client_id foreign key (client_id) references clients (id);
+    add index idx_run_client_client_id (client_id),
+    add constraint fk_run_client_client_id foreign key (client_id) references clients (id);
 alter table run_useragent
-	add index idx_run_useragent_run_id (run_id),
-	add constraint fk_run_useragent_run_id foreign key (run_id) references runs (id);
+    add index idx_run_useragent_run_id (run_id),
+    add constraint fk_run_useragent_run_id foreign key (run_id) references runs (id);
 alter table run_useragent
-	add index idx_run_useragent_useragent_id (useragent_id),
-	add constraint fk_run_useragent_useragent_id foreign key (useragent_id) references useragents (id);
+    add index idx_run_useragent_useragent_id (useragent_id),
+    add constraint fk_run_useragent_useragent_id foreign key (useragent_id) references useragents (id);
 alter table runs
-	add index idx_runs_job_id (job_id),
-	add constraint fk_runs_job_id foreign key (job_id) references jobs (id);
+    add index idx_runs_job_id (job_id),
+    add constraint fk_runs_job_id foreign key (job_id) references jobs (id);
