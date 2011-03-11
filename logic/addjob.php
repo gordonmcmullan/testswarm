@@ -14,7 +14,7 @@
         # TODO: Improve error message quality.
         } else {
             echo "Incorrect username or auth token.";
-            exit();    
+            exit();
         }
 
         mysql_queryf("INSERT INTO jobs (user_id,name,created) VALUES(%u,%s,NOW());",

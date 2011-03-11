@@ -135,6 +135,24 @@
 					}
 				}
             }
+        	$completed_runs = get_completed_runs($job_id);
+				foreach ($completed_runs as $run) {
+					if (! in_array($run, $reports_output)){
+						$xunit_url = "http://localhost:8999/?state=xunit";
+						$xunit_url = $xunit_url . "&run_id=" . $run['run'];
+						$xunit_url = $xunit_url . "&client_id=" . $run['client'];
+
+        				$curl = curl_init();
+        				curl_setopt($curl, CURLOPT_URL, $xunit_url);
+    					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+			        	$xunit = curl_exec($curl);
+						$xunit = substr($xunit, strlen('<?xml version="1.0" encoding="utf-8"?>'));
+			        	echo $xunit;
+			        	flush();
+			        	curl_close($curl);
+			        $reports_output[] = $run;
+					}
+				}
 			echo "</testsuites>\n";
 
         } else {

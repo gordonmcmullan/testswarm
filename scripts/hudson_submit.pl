@@ -70,7 +70,6 @@ my %SUITES = (    'core' => 'http://localhost:8999/jquery/' . $build_number . '/
 #}
 
 
-########### NO NEED TO CONFIGURE BELOW HERE ############
 my $dsn = "DBI:mysql:database=$DATABASE;host=$DBHOST;port=3306";
 my $dbh = DBI->connect($dsn, $USER, $PASSWORD);
 
