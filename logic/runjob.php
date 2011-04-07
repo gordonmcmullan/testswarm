@@ -64,6 +64,39 @@
         }
         return $completed_runs;
     }
+    
+    
+    /**
+     * 
+     * call the xunit script to get the xunit results for a  particular test run
+     * on a single client
+     *  
+     * @return string
+     * @param int $run_id
+     * @param int $client_id
+     */
+    function get_xunit($run_id, $client_id){
+    	$xunit_url = "http://" . $_SERVER['SERVER_NAME'] . ":" . $_SERVER['SERVER_PORT'];
+		$xunit_url = $xunit_url . "/index.php?state=xunit";
+		$xunit_url = $xunit_url . "&run_id=" . $run_id;
+		$xunit_url = $xunit_url . "&client_id=" . $client_id;
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $xunit_url);
+    	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		$xunit = curl_exec($curl);
+        
+					        	
+		#ToDo: The following line is a bit of a kludge, probably better ask for
+		#      the xunit script to return a version without the xml declaration
+		$xunit = substr($xunit, strlen('<?xml version="1.0" encoding="utf-8"?>'));
+		
+		curl_close($curl);
+		return $xunit;
+    	
+    }
+    
+    
 
     if ( $_REQUEST['state'] == "runjob" ) {
         $username = preg_replace("/[^a-zA-Z0-9_ -]/", "", $_REQUEST['user']);
@@ -112,57 +145,34 @@
         	$reports_output = array();
 
         	echo '<?xml version="1.0" encoding="utf-8"?>';
-
 			echo "<testsuites>\n";
-            while (runs_queued($job_id)){
+
+			while (runs_queued($job_id)){
 				sleep(10);
 				$completed_runs = get_completed_runs($job_id);
 				foreach ($completed_runs as $run) {
 					if (! in_array($run, $reports_output)){
-						
-						#$xunit_url = "http://localhost:8999/?state=xunit";
-						$xunit_url = "http://" . $_SERVER['SERVER_NAME'] . ":" . $_SERVER['SERVER_PORT'];
-						$xunit_url = $xunit_url . "/index.php?state=xunit";
-						$xunit_url = $xunit_url . "&run_id=" . $run['run'];
-						$xunit_url = $xunit_url . "&client_id=" . $run['client'];
-
-        				$curl = curl_init();
-        				curl_setopt($curl, CURLOPT_URL, $xunit_url);
-    					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-			        	$xunit = curl_exec($curl);
-			        	
-			        	#ToDo: The following line is a bit of a kludge, probably better ask for
-			        	#      the xunit script to return a version without the xml declaration
-						$xunit = substr($xunit, strlen('<?xml version="1.0" encoding="utf-8"?>'));
+						$xunit = get_xunit($run['run'], $run['client']);
 			        	echo $xunit;
 			        	flush();
-			        	curl_close($curl);
-			        $reports_output[] = $run;
+			            $reports_output[] = $run;
 					}
 				}
             }
-        	$completed_runs = get_completed_runs($job_id);
+        	$completed_runs = get_completed_runs($job_id);        	
         	if (completed_runs) {
-				foreach ($completed_runs as $run) {
+        		foreach ($completed_runs as $run) {
 					if (! in_array($run, $reports_output)){
-						$xunit_url = "http://localhost:8999/?state=xunit";
-						$xunit_url = $xunit_url . "&run_id=" . $run['run'];
-						$xunit_url = $xunit_url . "&client_id=" . $run['client'];
-
-        				$curl = curl_init();
-        				curl_setopt($curl, CURLOPT_URL, $xunit_url);
-    					curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-			        	$xunit = curl_exec($curl);
-						$xunit = substr($xunit, strlen('<?xml version="1.0" encoding="utf-8"?>'));
+						$xunit = get_xunit($run['run'], $run['client']);
 			        	echo $xunit;
 			        	flush();
-			        	curl_close($curl);
-			        $reports_output[] = $run;
+			            $reports_output[] = $run;
 					}
 				}
 			echo "</testsuites>\n";
         	}
         } else {
+        	# ToDo: can't remember what this is here for
             header("Location: $url");
         }
 
