@@ -160,7 +160,7 @@
 				}
             }
         	$completed_runs = get_completed_runs($job_id);        	
-        	if (completed_runs) {
+        	if ($completed_runs) {
         		foreach ($completed_runs as $run) {
 					if (! in_array($run, $reports_output)){
 						$xunit = get_xunit($run['run'], $run['client']);

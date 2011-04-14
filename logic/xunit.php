@@ -1,12 +1,23 @@
 <?php
 function gzdecode($data){
-$g=tempnam('/tmp','ff');
-@file_put_contents($g,$data);
-ob_start();
-readgzfile($g);
-$d=ob_get_clean();
-return $d;
+	$g=tempnam('/tmp','ff');
+	@file_put_contents($g,$data);
+	ob_start();
+	readgzfile($g);
+	$d=ob_get_clean();
+	return $d;
 }
+
+/**
+ * 
+ * 
+ * @var $title string
+ * @var $run_id int
+ * @var $client_id int
+ * @var $result resource
+ * @var $title string
+ */
+
 $title = ""; //set the title but set to empty string as index.php expects it to exist
 $run_id = preg_replace("/[^0-9]/", "", $_REQUEST['run_id']);
 $client_id = preg_replace("/[^0-9]/", "", $_REQUEST['client_id']);
@@ -27,13 +38,12 @@ $os = $row['os'];
 $browser = $row['browser'];
 $userAgent = $row['ua'];
 
-
-
 $htmlDoc = new DOMDocument();
 $htmlDoc->loadHTML($htmlData);
+
+/* @var nodeList DOMNodelist */
 $nodeList = $htmlDoc->getElementsByTagName('title');
 $suiteName = $nodeList->item(0)->firstChild->nodeValue;
-
 #$userAgent = $htmlDoc->getElementById('qunit-userAgent')->nodeValue;
 
 $xpath = new DOMXPath($htmlDoc);
@@ -51,13 +61,13 @@ $skipCount = 0;
 $moduleNames = array();
 $nodeList = $xpath->query("//span[@class='module-name']");
 foreach ($nodeList as $node) {
-$moduleNames[] = $node->nodeValue;
+	$moduleNames[] = $node->nodeValue;
 }
 
 $testNames = array();
 $nodeList = $xpath->query("//span[@class='test-name']");
 foreach ($nodeList as $node) {
-$testNames[] = $node->nodeValue;
+	$testNames[] = $node->nodeValue;
 }
 
 $xunitXMLDOM = new DOMdocument('1.0', 'utf-8');
@@ -78,6 +88,7 @@ $att = $xunitXMLDOM->createAttribute('package');
 $tsNode->appendChild($att);
 $val = $xunitXMLDOM->createTextNode($suiteName);
 $att->appendChild($val);
+
 $att = $xunitXMLDOM->createAttribute('tests');
 $tsNode->appendChild($att);
 $val = $xunitXMLDOM->createTextNode($testcaseCount);
@@ -133,45 +144,58 @@ $val = $xunitXMLDOM->createTextNode($os);
 $att->appendChild($val);
 
 for ($i=0; $i<$testcaseCount; $i++){
-$testcaseNode = $xunitXMLDOM->createElement('testcase');
-$tsNode->appendChild($testcaseNode);
-$att = $xunitXMLDOM->createAttribute('name');
-$testcaseNode->appendChild($att);
-$val = $xunitXMLDOM->createTextNode($testNames[$i]);
-$att->appendChild($val);
+	$testcaseNode = $xunitXMLDOM->createElement('testcase');
+	$tsNode->appendChild($testcaseNode);
+	$att = $xunitXMLDOM->createAttribute('name');
+	$testcaseNode->appendChild($att);
+	$val = $xunitXMLDOM->createTextNode($testNames[$i]);
+	$att->appendChild($val);
 
-$att = $xunitXMLDOM->createAttribute('classname');
-$testcaseNode->appendChild($att);
-$val = $xunitXMLDOM->createTextNode($moduleNames[$i]);
-$att->appendChild($val);
+	$att = $xunitXMLDOM->createAttribute('classname');
+	$testcaseNode->appendChild($att);
+	$val = $xunitXMLDOM->createTextNode($browser . "." . $moduleNames[$i]);
+	$att->appendChild($val);
 
-$nodeList = $xpath->query("//li[@id='test-output" . $i . "']/ol/li[@class='fail']");
-if ($nodeList->length > 0){
-$failureNode = $xunitXMLDOM->createElement('failure');
-$testcaseNode->appendChild($failureNode);
-$att = $xunitXMLDOM->createAttribute('type');
-$failureNode->appendChild($att);
-$val = $xunitXMLDOM->createTextNode('failure');
-$att->appendChild($val);
-$att = $xunitXMLDOM->createAttribute('message');
-$failureNode->appendChild($att);
-$val = $xunitXMLDOM->createTextNode('Put a suitable failure message in here');
-$att->appendChild($val);
-}
+	$nodeList = $xpath->query("//li[@id='test-output" . $i . "']/ol/li[@class='fail']");
+	if ($nodeList->length > 0){
+		$failureNode = $xunitXMLDOM->createElement('failure');
+		$testcaseNode->appendChild($failureNode);
+		$att = $xunitXMLDOM->createAttribute('type');
+		$failureNode->appendChild($att);
+		$val = $xunitXMLDOM->createTextNode('failure');
+		$att->appendChild($val);
+		$att = $xunitXMLDOM->createAttribute('message');
+		$failureNode->appendChild($att);
+		$val = $xunitXMLDOM->createTextNode('Put a suitable failure message in here');
+		$att->appendChild($val);
+	}
 
-$systemOutNode = $xunitXMLDOM->createElement('system-out');
-$testcaseNode->appendChild($systemOutNode);
+	$systemOutNode = $xunitXMLDOM->createElement('system-out');
+	$testcaseNode->appendChild($systemOutNode);
 
-$nodeList = $xpath->query("//li[@id='test-output" . $i ."']/ol/li");
-$systemOut = "";
-$j = 0;
-foreach ($nodeList as $node) {
-$j++;
-$systemOut = $systemOut . $j .": " . $node->textContent . "\n";
-}
+	$nodeList = $xpath->query("//li[@id='test-output" . $i ."']/ol/li");
+	$systemOut = "";
+	$j = 0;
+	foreach ($nodeList as $node) {
+		/* @var $node DOMNode */
+		$j++;
+		#$systemOut = $systemOut . $j .": " . $node->textContent . "\n";
+		
+		$innerHTML = $node->ownerDocument->saveXML($node); /* @var $innerHTML String */
+		$innerHTML = str_replace("</span>", "\t</span>", $innerHTML);
+		$innerText = strip_tags($innerHTML); 
+		/*
+		$outerHTML = str_replace($outerHTML, "<table>", "\n<table>");
+		$outerHTML = str_replace($outerHTML, "</td>", "</td> ");
+		$outerHTML = str_replace($outerHTML, "</tr>", "</tr>\n"); */
+		
+		$systemOut = $systemOut . $j .": " . $innerText . "\n";
+		
+		#$systemOut = $systemOut . $j .": " . $node->ownerDocument->saveXML($node) . "\n";
+	}
 
-$systemOutData = $xunitXMLDOM->createCDATASection($systemOut);
-$systemOutNode->appendChild($systemOutData);
+	$systemOutData = $xunitXMLDOM->createCDATASection($systemOut);
+	$systemOutNode->appendChild($systemOutData);
 
 
 }
